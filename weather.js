@@ -27,5 +27,29 @@ async function processData(dataPromise) {
     return object;
 }
 
-console.log(processData(getWeatherData(43.470861, 143.314163)));
+async function getLocationCoord(location) {
+    const apiUrl = `https://geocoding-api.open-meteo.com/v1/search?name=${location}&count=10&language=en&format=json`
+    const data = await fetch(apiUrl, { mode: "cors" });
+    const dataPromise = await data.json()
+    
+    return dataPromise;
+}
 
+// console.log(processData(getWeatherData(43.470861, 143.314163)));
+
+const searchInput = document.getElementById("search");
+const select = document.querySelector("select");
+
+function searchHandler(e) {
+    if (e.key === "Enter") {
+        if (searchInput.value !== "") {
+            const coordData = getLocationCoord(searchInput.value);
+
+            coordData.then((coordObject) => {
+                console.log(coordObject);
+            })
+        } 
+    }
+}
+
+searchInput.addEventListener("keydown", searchHandler);
