@@ -2,10 +2,19 @@
 
 async function getWeatherData(coord) {
     const coordArray = coord.split("|");
-
     const apiUrl = `https://api.open-meteo.com/v1/forecast?latitude=${coordArray[0]}&longitude=${coordArray[1]}&daily=temperature_2m_mean,weather_code&current=temperature_2m,weather_code&timezone=auto`
-    const data = await fetch(apiUrl, { mode: "cors" });
-    const dataPromise = await data.json();
+
+    let data;
+    let dataPromise;
+
+    try {
+        data = await fetch(apiUrl, { mode: "cors" });
+        dataPromise = await data.json();
+    } catch (error) {
+        alert("Fetching Failed.");
+
+        throw error;
+    }
 
     return dataPromise;
 }
@@ -26,14 +35,23 @@ async function processData(dataPromise) {
         },
     }
 
-    console.log(object);
     return object;
 }
 
 async function getLocationCoord(location) {
     const apiUrl = `https://geocoding-api.open-meteo.com/v1/search?name=${location}&count=10&language=en&format=json`
-    const data = await fetch(apiUrl, { mode: "cors" });
-    const dataPromise = await data.json()
+
+    let data;
+    let dataPromise;
+    
+    try {
+        data = await fetch(apiUrl, { mode: "cors" });
+        dataPromise = await data.json();
+    } catch (error) {
+        alert("Fetching Failed.");
+
+        throw error;
+    }
 
     return dataPromise;
 }
@@ -55,16 +73,20 @@ function searchHandler(e) {
             const coordData = getLocationCoord(searchInput.value);
 
             coordData.then((coordObject) => {
-                coordObject.results.forEach((result) => {
-                    const searchOption = document.createElement("option");
-
-                    searchOption.textContent = `${result.name} (${result.country})`;
-                    searchOption.value = `${result.latitude}|${result.longitude}`;
-
-                    select.appendChild(searchOption);
-                })
-
-                displayWeatherData(select.value);
+                if (coordObject.results) {
+                    coordObject.results.forEach((result) => {
+                        const searchOption = document.createElement("option");
+    
+                        searchOption.textContent = `${result.name} (${result.country})`;
+                        searchOption.value = `${result.latitude}|${result.longitude}`;
+    
+                        select.appendChild(searchOption);
+                    })
+    
+                    displayWeatherData(select.value);
+                } else {
+                    alert("Search Failed: No results available.");
+                }
             })
         }
     }
@@ -72,7 +94,7 @@ function searchHandler(e) {
 
 function callDisplayFunction() {
     displayWeatherData(select.value);
-} 
+}
 
 searchInput.addEventListener("keydown", searchHandler);
 select.addEventListener("change", callDisplayFunction);
