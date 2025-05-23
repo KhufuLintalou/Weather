@@ -36,7 +36,11 @@ async function getLocationCoord(location) {
     return dataPromise;
 }
 
-// console.log(processData(getWeatherData(43.470861, 143.314163)));
+function emptyElement(element) {
+    while (element.firstChild) {
+        element.firstChild.remove();
+    }
+}
 
 const searchInput = document.getElementById("search");
 const select = document.querySelector("select");
@@ -44,28 +48,43 @@ const select = document.querySelector("select");
 function searchHandler(e) {
     if (e.key === "Enter") {
         if (searchInput.value !== "") {
+            emptyElement(select);
+
             const coordData = getLocationCoord(searchInput.value);
 
             coordData.then((coordObject) => {
-                console.log(coordObject);
+                coordObject.results.forEach((result) => {
+                    const searchOption = document.createElement("option");
+
+                    searchOption.textContent = `${result.name} (${result.country})`;
+                    searchOption.value = `${result.latitude}|${result.longitude}`;
+
+                    select.appendChild(searchOption);
+                })
+
+                displayWeatherData(coordObject.results[0].latitude,
+                                   coordObject.results[0].longitude)
             })
         }
     }
 }
 
+function callDisplayFunction() {
+    const coordArray = select.value.split("|");
+    
+    displayWeatherData(coordArray[0], coordArray[1]);
+} 
+
 searchInput.addEventListener("keydown", searchHandler);
+select.addEventListener("change", callDisplayFunction);
 
 const currentButton = document.getElementById("current");
 const dailyButton = document.getElementById("daily");
 const weatherDisplay = document.getElementById("weather-display");
 
-function emptyDisplay() {
-    while (weatherDisplay.firstChild) {
-        weatherDisplay.firstChild.remove();
-    }
-}
-
 async function displayWeatherData(lat, long) {
+    emptyElement(weatherDisplay);
+
     const weatherData = await processData(getWeatherData(lat, long));
 
     if (currentButton.classList.contains("selected")) {
@@ -114,5 +133,3 @@ async function displayWeatherData(lat, long) {
         }
     }
 }
-
-displayWeatherData(43.470861, 143.314163);
