@@ -1,7 +1,9 @@
 "use strict";
 
-async function getWeatherData(lat, long) {
-    const apiUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${long}&daily=temperature_2m_mean,weather_code&current=temperature_2m,weather_code&timezone=auto`
+async function getWeatherData(coord) {
+    const coordArray = coord.split("|");
+
+    const apiUrl = `https://api.open-meteo.com/v1/forecast?latitude=${coordArray[0]}&longitude=${coordArray[1]}&daily=temperature_2m_mean,weather_code&current=temperature_2m,weather_code&timezone=auto`
     const data = await fetch(apiUrl, { mode: "cors" });
     const dataPromise = await data.json();
 
@@ -62,17 +64,14 @@ function searchHandler(e) {
                     select.appendChild(searchOption);
                 })
 
-                displayWeatherData(coordObject.results[0].latitude,
-                                   coordObject.results[0].longitude)
+                displayWeatherData(select.value);
             })
         }
     }
 }
 
 function callDisplayFunction() {
-    const coordArray = select.value.split("|");
-    
-    displayWeatherData(coordArray[0], coordArray[1]);
+    displayWeatherData(select.value);
 } 
 
 searchInput.addEventListener("keydown", searchHandler);
@@ -82,12 +81,12 @@ const currentButton = document.getElementById("current");
 const dailyButton = document.getElementById("daily");
 const weatherDisplay = document.getElementById("weather-display");
 
-async function displayWeatherData(lat, long) {
+async function displayWeatherData(coord) {
     emptyElement(weatherDisplay);
 
-    const weatherData = await processData(getWeatherData(lat, long));
+    const weatherData = await processData(getWeatherData(coord));
 
-    if (currentButton.classList.contains("selected")) {
+    if (currentButton.className === "selected") {
         const data = document.createElement("div");
         const mainInfo = document.createElement("div");
         const temp = document.createElement("h1");
@@ -109,7 +108,7 @@ async function displayWeatherData(lat, long) {
         mainInfo.append(temp, date);
     }
 
-    if (dailyButton.classList.contains("selected")) {
+    if (dailyButton.className === "selected") {
         for (let i = 0; i < 7; i++) {
             const data = document.createElement("div");
             const mainInfo = document.createElement("div");
@@ -133,3 +132,26 @@ async function displayWeatherData(lat, long) {
         }
     }
 }
+
+function selectButton() {
+    if (currentButton.className === "selected") {
+        currentButton.removeAttribute("class");
+
+        dailyButton.className = "selected";
+    } else {
+        dailyButton.removeAttribute("class");
+
+        currentButton.className = "selected";
+    }
+}
+
+function toggleData() {
+    selectButton();
+
+    if (select.value !== "") {
+        displayWeatherData(select.value);
+    }
+}
+
+currentButton.addEventListener("click", toggleData);
+dailyButton.addEventListener("click", toggleData);
