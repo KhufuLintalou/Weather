@@ -74,6 +74,8 @@ function searchHandler(e) {
 
             coordData.then((coordObject) => {
                 if (coordObject.results) {
+                    emptyElement(select);
+
                     coordObject.results.forEach((result) => {
                         const searchOption = document.createElement("option");
     
