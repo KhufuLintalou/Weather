@@ -103,6 +103,34 @@ const currentButton = document.getElementById("current");
 const dailyButton = document.getElementById("daily");
 const weatherDisplay = document.getElementById("weather-display");
 
+function interpretWeatherCode(code) {
+    if (code === 0) {
+        return "Clear Sky";
+    }
+
+    if (code >= 1 && code <= 3) {
+        return "Cloudy";
+    }
+
+    if (code === 45 || code === 48) {
+        return "Foggy";
+    }
+
+    if (code >= 51 && code <= 67 || code >= 80 && code <= 82) {
+        return "Rain Or Some Form Of It";
+    }
+
+    if (code >= 71 && code <= 75) {
+        return "Snow Fall";
+    }
+
+    if (code === 95 || code === "95*") {
+        return "Thunderstorm";
+    }
+
+    return `Code: ${code}`;
+}
+
 async function displayWeatherData(coord) {
     emptyElement(weatherDisplay);
 
@@ -121,9 +149,9 @@ async function displayWeatherData(coord) {
         date.className = "date";
         codeDescript.className = "code-desc";
 
-        temp.textContent = weatherData.current.temp;
+        temp.textContent = weatherData.current.temp + "°C";
         date.textContent = weatherData.current.time;
-        codeDescript.textContent = weatherData.current.weatherCode;
+        codeDescript.textContent = interpretWeatherCode(weatherData.current.weatherCode);
 
         weatherDisplay.appendChild(data);
         data.append(mainInfo, codeDescript);
@@ -144,9 +172,9 @@ async function displayWeatherData(coord) {
             date.className = "date";
             codeDescript.className = "code-desc";
 
-            temp.textContent = weatherData.daily.meanTemp[i];
+            temp.textContent = weatherData.daily.meanTemp[i] + "°C";
             date.textContent = weatherData.daily.time[i];
-            codeDescript.textContent = weatherData.daily.weatherCode[i];
+            codeDescript.textContent = interpretWeatherCode(weatherData.daily.weatherCode[i]);
 
             weatherDisplay.appendChild(data);
             data.append(mainInfo, codeDescript);
@@ -167,10 +195,9 @@ function selectButton() {
     }
 }
 
-function toggleData() {
-    selectButton();
-
-    if (select.value !== "") {
+function toggleData(e) {
+    if (e.target.className !== "selected") {
+        selectButton();
         displayWeatherData(select.value);
     }
 }
