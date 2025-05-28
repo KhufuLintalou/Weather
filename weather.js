@@ -134,9 +134,9 @@ function interpretWeatherCode(code) {
 }
 
 async function displayWeatherData(coord) {
-    emptyElement(weatherDisplay);
-
     const weatherData = await processData(getWeatherData(coord));
+
+    emptyElement(weatherDisplay);
 
     if (currentButton.className === "selected") {
         const data = document.createElement("div");
@@ -152,7 +152,7 @@ async function displayWeatherData(coord) {
         codeDescript.className = "code-desc";
 
         temp.textContent = weatherData.current.temp + "°C";
-        date.textContent = weatherData.current.time;
+        date.textContent = weatherData.current.time.split("T").reverse().join(" | ");
         codeDescript.textContent = interpretWeatherCode(weatherData.current.weatherCode);
 
         weatherDisplay.appendChild(data);
@@ -200,7 +200,11 @@ function selectButton() {
 function toggleData(e) {
     if (e.target.className !== "selected") {
         selectButton();
-        displayWeatherData(select.value);
+
+
+        if (select.value !== "") {
+            displayWeatherData(select.value);
+        }
     }
 }
 
