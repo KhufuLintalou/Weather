@@ -69,21 +69,26 @@ const searchInput = document.getElementById("search");
 const select = document.querySelector("select");
 
 function displayLoadingStatus() {
+    if (!weatherDisplay.firstChild) {
+        const load = document.createElement("div")
+
+        load.textContent = "Loading...";
+        load.id = "load";
+
+        document.body.appendChild(load);
+    }
+
     weatherDisplay.className = "loading";
-
-    const load = document.createElement("div");
-
-    load.textContent = "Loading...";
-    load.id = "load";
-
-    document.body.appendChild(load);
 }
 
 function removeLoadingStatus() {
-    weatherDisplay.removeAttribute("class");
-
     const load = document.getElementById("load");
-    load.remove();
+    
+    if (load) {
+        load.remove();
+    }
+
+    weatherDisplay.removeAttribute("class");
 }
 
 function searchHandler(e) {
@@ -111,6 +116,8 @@ function searchHandler(e) {
                     displayWeatherData(select.value);
                 } else {
                     alert("Search Failed: No results available.");
+
+                    removeLoadingStatus();
                 }
             })
         }
