@@ -59,7 +59,7 @@ button:hover {
 #weather-display {
     background-color: #a9a9a93d;
     width: 90%;
-    height: 300px;
+    height: 250px;
     display: flex;
     gap: 10px;
     padding: 10px;
@@ -86,4 +86,16 @@ button:hover {
 .code-desc {
     font-size: 24px;
     margin-top: 50px;
+}
+
+#load {
+    position: absolute;
+    top: 250px;
+    color: white;
+    font-size: 30px;
+    text-shadow: black 2px 2px 2px;
+}
+
+.loading {
+    filter: blur(4px);
 }
