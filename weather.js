@@ -43,7 +43,7 @@ async function getLocationCoord(location) {
 
     let data;
     let dataPromise;
-    
+
     try {
         data = await fetch(apiUrl, { mode: "cors" });
         dataPromise = await data.json();
@@ -62,11 +62,34 @@ function emptyElement(element) {
     }
 }
 
+const currentButton = document.getElementById("current");
+const dailyButton = document.getElementById("daily");
+const weatherDisplay = document.getElementById("weather-display");
 const searchInput = document.getElementById("search");
 const select = document.querySelector("select");
 
+function displayLoadingStatus() {
+    weatherDisplay.className = "loading";
+
+    const load = document.createElement("div");
+
+    load.textContent = "Loading...";
+    load.id = "load";
+
+    document.body.appendChild(load);
+}
+
+function removeLoadingStatus() {
+    weatherDisplay.removeAttribute("class");
+
+    const load = document.getElementById("load");
+    load.remove();
+}
+
 function searchHandler(e) {
     if (e.key === "Enter") {
+        displayLoadingStatus();
+
         if (searchInput.value !== "") {
             emptyElement(select);
 
@@ -78,13 +101,13 @@ function searchHandler(e) {
 
                     coordObject.results.forEach((result) => {
                         const searchOption = document.createElement("option");
-    
+
                         searchOption.textContent = `${result.name} (${result.country})`;
                         searchOption.value = `${result.latitude}|${result.longitude}`;
-    
+
                         select.appendChild(searchOption);
                     })
-    
+
                     displayWeatherData(select.value);
                 } else {
                     alert("Search Failed: No results available.");
@@ -95,15 +118,12 @@ function searchHandler(e) {
 }
 
 function callDisplayFunction() {
+    displayLoadingStatus();
     displayWeatherData(select.value);
 }
 
 searchInput.addEventListener("keydown", searchHandler);
 select.addEventListener("change", callDisplayFunction);
-
-const currentButton = document.getElementById("current");
-const dailyButton = document.getElementById("daily");
-const weatherDisplay = document.getElementById("weather-display");
 
 function interpretWeatherCode(code) {
     if (code === 0) {
@@ -135,6 +155,8 @@ function interpretWeatherCode(code) {
 
 async function displayWeatherData(coord) {
     const weatherData = await processData(getWeatherData(coord));
+
+    removeLoadingStatus();
 
     emptyElement(weatherDisplay);
 
@@ -185,6 +207,7 @@ async function displayWeatherData(coord) {
     }
 }
 
+
 function selectButton() {
     if (currentButton.className === "selected") {
         currentButton.removeAttribute("class");
@@ -201,8 +224,8 @@ function toggleData(e) {
     if (e.target.className !== "selected") {
         selectButton();
 
-
         if (select.value !== "") {
+            displayLoadingStatus();
             displayWeatherData(select.value);
         }
     }
